@@ -15,6 +15,7 @@ import {
 	Image,
 	Overlay,
 	Spinner,
+	IPFSMedia,
 } from 'components';
 import { MakeABid } from 'containers';
 
@@ -305,16 +306,15 @@ const NFTView: React.FC<NFTViewProps> = ({ domain, onTransfer }) => {
 				} border-primary border-rounded`}
 			>
 				<div className={`${styles.Image} border-rounded`}>
-					<Image
+					<IPFSMedia
 						style={{
 							borderRadius: 10,
 							borderWidth: 2,
 							objectFit: 'contain',
 						}}
-						unmute
 						className="border-radius"
-						src={znsDomain.domain?.image ?? ''}
-						onClick={openImageOverlay}
+						ipfsUrl={znsDomain.domain?.image ?? ''}
+						alt="nft preview"
 					/>
 				</div>
 				<div className={styles.Info}>
