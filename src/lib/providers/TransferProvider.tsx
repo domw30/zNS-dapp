@@ -80,7 +80,7 @@ const TransferProvider: React.FC<TransferProviderType> = ({ children }) => {
 	const contextValue = {
 		transferring,
 		transferred,
-		transferRequest,
+		transferRequest
 	};
 
 	return (
@@ -93,7 +93,6 @@ const TransferProvider: React.FC<TransferProviderType> = ({ children }) => {
 export default TransferProvider;
 
 export function useTransferProvider() {
-	const { transferring, transferRequest, transferred } =
-		React.useContext(TransferContext);
+	const { transferring, transferRequest, transferred } = React.useContext(TransferContext);
 	return { transferring, transferRequest, transferred };
 }
