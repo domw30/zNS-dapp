@@ -154,104 +154,65 @@ const ConnectToWallet: React.FC<ConnectToWalletProps> = ({ onConnect }) => {
 			</div>
 			<hr className="glow" />
 
-			{isLoading && (
-				<div className={styles.Disconnect}>
-					<hr className="glow" />
-					<FutureButton glow onClick={() => {}}>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'center',
-								verticalAlign: 'center',
-								alignItems: 'center',
-							}}
-						>
-							<div
-								style={{
-									display: 'inline-block',
-									width: '10%',
-									margin: '0px',
-									padding: '0px',
-								}}
-							>
-								<Spinner />
-							</div>
-							<p
-								style={{
-									display: 'inline-block',
-									width: '90%',
-									verticalAlign: 'center',
-									height: '18px',
-									marginLeft: '24px',
-								}}
-							>
-								Connecting
-							</p>
-						</div>
-					</FutureButton>
-				</div>
-			)}
+			<ul>
+				<li
+					onClick={() => connectToWallet('metamask')}
+					className={styles.Wallet}
+				>
+					Metamask
+					<div>
+						<img
+							style={{ height: 36, width: 36 }}
+							alt="metamask"
+							src={metamaskIcon}
+						/>
+					</div>
+				</li>
+				<li
+					onClick={() => connectToWallet('walletconnect')}
+					className={`${styles.Wallet} ${styles.MobileEnabled}`}
+				>
+					<span>Wallet Connect</span>
+					<div>
+						<img alt="wallet connect" src={walletConnectIcon} />
+					</div>
+				</li>
+				<li
+					onClick={() => connectToWallet('coinbase')}
+					className={styles.Wallet}
+				>
+					<span>Coinbase Wallet</span>
+					<div>
+						<img alt="coinbase wallet" src={coinbaseWalletIcon} />
+					</div>
+				</li>
+				<li
+					onClick={() => connectToWallet('fortmatic')}
+					className={styles.Wallet}
+				>
+					<span>Fortmatic</span>
+					<div>
+						<img alt="fortmatic" src={fortmaticIcon} />
+					</div>
+				</li>
+				<li onClick={() => connectToWallet('portis')} className={styles.Wallet}>
+					<span>Portis</span>
+					<div>
+						<img alt="portis" src={portisIcon} />
+					</div>
+				</li>
+			</ul>
 
-			{!isLoading && (
-				<ul>
-					<li
-						onClick={() => connectToWallet('metamask')}
-						className={styles.Wallet}
-					>
-						Metamask
-						<div>
-							<Image
-								style={{ height: 36, width: 36 }}
-								alt="metamask"
-								src={metamaskIcon}
-							/>
-						</div>
-					</li>
-					<li
-						onClick={() => connectToWallet('walletconnect')}
-						className={styles.Wallet}
-					>
-						<span>Wallet Connect</span>
-						<div>
-							<Image alt="wallet connect" src={walletConnectIcon} />
-						</div>
-					</li>
-					<li
-						onClick={() => connectToWallet('coinbase')}
-						className={styles.Wallet}
-					>
-						<span>Coinbase Wallet</span>
-						<div>
-							<Image alt="coinbase wallet" src={coinbaseWalletIcon} />
-						</div>
-					</li>
-					<li
-						onClick={() => connectToWallet('fortmatic')}
-						className={styles.Wallet}
-					>
-						<span>Fortmatic</span>
-						<div>
-							<Image alt="fortmatic" src={fortmaticIcon} />
-						</div>
-					</li>
-					<li
-						onClick={() => connectToWallet('portis')}
-						className={styles.Wallet}
-					>
-						<span>Portis</span>
-						<div>
-							<Image alt="portis" src={portisIcon} />
-						</div>
-					</li>
-				</ul>
-			)}
-			{active && connector && !isLoading && (
-				<div className={styles.Disconnect}>
+			{active && connector && (
+				<>
 					<hr className="glow" />
-					<FutureButton glow onClick={disconnect}>
-						Disconnect {nameFromConnector(connector)}
-					</FutureButton>
-				</div>
+					<div className={styles.Disconnect}>
+						<p>Connected to {nameFromConnector(connector)}</p>
+						<FutureButton glow onClick={disconnect}>
+							Disconnect
+						</FutureButton>
+					</div>
+				</>
 			)}
 			<hr className="glow" />
 			<div className={styles.Footer}>
