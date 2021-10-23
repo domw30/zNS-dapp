@@ -366,7 +366,7 @@ const ZNS: React.FC<ZNSProps> = ({ domain, version, isNftView: nftView }) => {
 
 	return (
 		<>
-			{pageWidth > 1000 && modals()}
+			{modals()}
 			{/* ZNS Content */}
 			<div
 				className="page-spacing"
