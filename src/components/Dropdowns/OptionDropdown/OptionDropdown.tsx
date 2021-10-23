@@ -1,21 +1,25 @@
 //- React Imports
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useLayer } from 'react-laag';
+import { motion, AnimatePresence } from 'framer-motion';
 
 //- Style Imports
 import styles from './OptionDropdown.module.scss';
 
 type OptionDropdownProps = {
 	options: string[];
-	onSelect: (selection: string) => void;
-	children: React.ReactNode;
-	drawerStyle?: React.CSSProperties;
+	selectionMode?: 'none' | 'single' | 'multi';
+	onSelect?: (selection: string) => void;
+	children: React.ReactNode | string | number;
+	placement?: 'bottom-start' | 'bottom-center' | 'bottom-end';
 };
 
 const OptionDropdown: React.FC<OptionDropdownProps> = ({
 	options,
 	onSelect,
+	selectionMode = 'none',
 	children,
-	drawerStyle,
+	placement = 'bottom-center',
 }) => {
 	//////////////////
 	// State & Refs //
@@ -23,15 +27,31 @@ const OptionDropdown: React.FC<OptionDropdownProps> = ({
 
 	const [isOpen, setIsOpen] = useState(false);
 	const [selected, setSelected] = useState(options[0] || '');
-	const wrapperRef = useRef<HTMLUListElement>(null);
+
+	const { triggerProps, layerProps, renderLayer } = useLayer({
+		isOpen: isOpen,
+		placement,
+		onOutsideClick: close,
+	});
+
+	const animationProps = {
+		initial: { zIndex: 10000, opacity: 0, scale: 0.9 },
+		animate: { opacity: 1, scale: 1 },
+		exit: { opacity: 0, scale: 0.9 },
+		transition: { duration: 0.1 },
+	};
 
 	///////////////
 	// Functions //
 	///////////////
 
 	const select = (option: string) => {
-		setSelected(option);
-		onSelect(option);
+		if (selectionMode !== 'none') {
+			setSelected(option);
+		}
+		if (onSelect) {
+			onSelect(option);
+		}
 		close();
 	};
 
@@ -39,9 +59,9 @@ const OptionDropdown: React.FC<OptionDropdownProps> = ({
 		setIsOpen(true);
 	};
 
-	const close = () => {
+	function close() {
 		setIsOpen(false);
-	};
+	}
 
 	// Toggles the visibility of the drawer
 	const toggle = () => {
@@ -49,46 +69,37 @@ const OptionDropdown: React.FC<OptionDropdownProps> = ({
 		else open();
 	};
 
-	// Toggles the visibility of the drawer on window click
-	const toggleWindow = (event: Event) => {
-		const t = event.target as HTMLElement;
-		const w = wrapperRef.current;
-		if (!t || !w) return;
-		setIsOpen(w.contains(t));
-	};
-
 	/////////////
 	// Effects //
 	/////////////
 
-	// Adds window click listener when opened, removes it when closed
-	useEffect(() => {
-		if (isOpen) window.addEventListener('click', toggleWindow);
-		else window.removeEventListener('click', toggleWindow);
-		return () => window.removeEventListener('click', toggleWindow);
-	}, [isOpen]);
-
 	return (
-		<div className={styles.Dropdown}>
-			<div className={styles.Header} onClick={toggle}>
+		<div>
+			<div className={styles.Header} {...triggerProps} onClick={toggle}>
 				{children}
 			</div>
-			{isOpen && (
-				<ul
-					ref={wrapperRef}
-					style={drawerStyle}
-					className={`${styles.Drawer} blur`}
-				>
-					{options.map((o) => (
-						<li
-							className={selected === o ? styles.Selected : ''}
-							onClick={() => select(o)}
-							key={o}
-						>
-							{o}
-						</li>
-					))}
-				</ul>
+			{renderLayer(
+				<AnimatePresence>
+					{isOpen && (
+						<motion.div {...animationProps} {...layerProps}>
+							<ul className={styles.Drawer}>
+								{options.map((o) => (
+									<li
+										className={
+											selectionMode !== 'none' && selected === o
+												? styles.Selected
+												: ''
+										}
+										onClick={() => select(o)}
+										key={o}
+									>
+										{o}
+									</li>
+								))}
+							</ul>
+						</motion.div>
+					)}
+				</AnimatePresence>,
 			)}
 		</div>
 	);

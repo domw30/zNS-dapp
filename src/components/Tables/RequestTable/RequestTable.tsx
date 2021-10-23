@@ -482,18 +482,18 @@ const RequestTable: React.FC<RequestTableProps> = ({
 					/>
 					<div className={styles.searchHeaderButtons}>
 						<OptionDropdown
+							selectionMode="single"
 							onSelect={filterByDomain}
 							options={['All Domains', 'Your Domains', 'Your Requests']}
-							drawerStyle={{ width: 179 }}
 						>
 							<FilterButton onClick={() => {}}>
 								{domainFilter || 'All Domains'}
 							</FilterButton>
 						</OptionDropdown>
 						<OptionDropdown
+							selectionMode="single"
 							onSelect={filterByStatus}
 							options={['All Statuses', 'Open Requests', 'Accepted']}
-							drawerStyle={{ width: 179 }}
 						>
 							<FilterButton onClick={() => {}}>
 								{statusFilter || 'All Statuses'}
