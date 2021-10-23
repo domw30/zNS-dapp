@@ -14,7 +14,7 @@ import {
 import { AbstractConnector } from '@web3-react/abstract-connector';
 
 //- Style Imports
-import WalletStyles from './Wallet.module.scss';
+import styles from './Wallet.module.scss';
 
 //- Component Imports
 import { FutureButton, Spinner, Image } from 'components';
@@ -148,14 +148,14 @@ const ConnectToWallet: React.FC<ConnectToWalletProps> = ({ onConnect }) => {
 	};
 
 	return (
-		<div className={`${WalletStyles.connect} border-primary`}>
-			<div className={WalletStyles.header}>
+		<div className={`${styles.Container} border-primary`}>
+			<div className={styles.Header}>
 				<h3 className={`glow-text-white`}>Connect To A Wallet</h3>
 			</div>
 			<hr className="glow" />
 
 			{isLoading && (
-				<div className={WalletStyles.Disconnect}>
+				<div className={styles.Disconnect}>
 					<hr className="glow" />
 					<FutureButton glow onClick={() => {}}>
 						<div
@@ -196,7 +196,7 @@ const ConnectToWallet: React.FC<ConnectToWalletProps> = ({ onConnect }) => {
 				<ul>
 					<li
 						onClick={() => connectToWallet('metamask')}
-						className={WalletStyles.wallet}
+						className={styles.Wallet}
 					>
 						Metamask
 						<div>
@@ -209,7 +209,7 @@ const ConnectToWallet: React.FC<ConnectToWalletProps> = ({ onConnect }) => {
 					</li>
 					<li
 						onClick={() => connectToWallet('walletconnect')}
-						className={WalletStyles.wallet}
+						className={styles.Wallet}
 					>
 						<span>Wallet Connect</span>
 						<div>
@@ -218,7 +218,7 @@ const ConnectToWallet: React.FC<ConnectToWalletProps> = ({ onConnect }) => {
 					</li>
 					<li
 						onClick={() => connectToWallet('coinbase')}
-						className={WalletStyles.wallet}
+						className={styles.Wallet}
 					>
 						<span>Coinbase Wallet</span>
 						<div>
@@ -227,7 +227,7 @@ const ConnectToWallet: React.FC<ConnectToWalletProps> = ({ onConnect }) => {
 					</li>
 					<li
 						onClick={() => connectToWallet('fortmatic')}
-						className={WalletStyles.wallet}
+						className={styles.Wallet}
 					>
 						<span>Fortmatic</span>
 						<div>
@@ -236,7 +236,7 @@ const ConnectToWallet: React.FC<ConnectToWalletProps> = ({ onConnect }) => {
 					</li>
 					<li
 						onClick={() => connectToWallet('portis')}
-						className={WalletStyles.wallet}
+						className={styles.Wallet}
 					>
 						<span>Portis</span>
 						<div>
@@ -246,7 +246,7 @@ const ConnectToWallet: React.FC<ConnectToWalletProps> = ({ onConnect }) => {
 				</ul>
 			)}
 			{active && connector && !isLoading && (
-				<div className={WalletStyles.Disconnect}>
+				<div className={styles.Disconnect}>
 					<hr className="glow" />
 					<FutureButton glow onClick={disconnect}>
 						Disconnect {nameFromConnector(connector)}
@@ -254,7 +254,7 @@ const ConnectToWallet: React.FC<ConnectToWalletProps> = ({ onConnect }) => {
 				</div>
 			)}
 			<hr className="glow" />
-			<div className={WalletStyles.footer}>
+			<div className={styles.Footer}>
 				<p>
 					New to Ethereum?
 					<br />
