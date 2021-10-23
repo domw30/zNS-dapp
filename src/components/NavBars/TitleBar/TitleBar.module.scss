@@ -196,12 +196,12 @@ header {
 }
 
 @media only screen and (max-width: 1000px) {
-	.Actions {
+	.Actions > *:not(:last-child) {
 		display: none !important;
 	}
 
 	.Info {
-		margin-right: 0;
+		margin-right: 16px;
 	}
 }
 

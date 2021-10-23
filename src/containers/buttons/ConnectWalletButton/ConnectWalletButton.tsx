@@ -11,7 +11,9 @@ const ConnectWalletButton = (props: any) => {
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
 	const openModal = () => {
-		setIsModalOpen(true);
+		if (!active) {
+			setIsModalOpen(true);
+		}
 	};
 
 	const closeModal = () => {

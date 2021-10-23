@@ -34,14 +34,15 @@ import {
 	NumberButton,
 	MintPreview,
 	TransferPreview,
-	Spinner,
 } from 'components';
 
 import {
+	ConnectWalletButton,
 	SubdomainTable,
 	CurrentDomainPreview,
 	ProfileModal,
 	WheelsRaffle,
+	HomeDropdown,
 } from 'containers';
 
 //- Library Imports
@@ -167,6 +168,12 @@ const ZNS: React.FC<ZNSProps> = ({ domain, version, isNftView: nftView }) => {
 
 	const scrollToTop = () => {
 		document.querySelector('body')?.scrollTo(0, 0);
+	};
+
+	const onDropdownSelect = (selection: string) => {
+		switch (selection) {
+		}
+		console.log(selection);
 	};
 
 	/////////////////////
@@ -399,46 +406,16 @@ const ZNS: React.FC<ZNSProps> = ({ domain, version, isNftView: nftView }) => {
 						setIsSearchActive={setIsSearchActive}
 					>
 						<>
-							{!account && localStorage.getItem('chosenWallet') && (
-								<FutureButton glow onClick={() => openWallet()}>
-									<div
-										style={{
-											display: 'flex',
-											justifyContent: 'center',
-											verticalAlign: 'center',
-											alignItems: 'center',
-											paddingBottom: '5px',
-										}}
-									>
-										<div
-											style={{
-												display: 'inline-block',
-												width: '10%',
-												margin: '0px',
-												padding: '0px',
-											}}
-										>
-											<Spinner />
-										</div>
-										<p
-											style={{
-												display: 'inline-block',
-												width: '90%',
-												verticalAlign: 'center',
-												height: '18px',
-												marginLeft: '15px',
-											}}
-											className={styles.Message}
-										>
-											Trying to connect {localStorage.getItem('chosenWallet')}
-										</p>
-									</div>
-								</FutureButton>
-							)}
-							{!account && !localStorage.getItem('chosenWallet') && (
-								<FutureButton glow onClick={openWallet}>
-									Connect {pageWidth > 900 && 'Wallet'}
-								</FutureButton>
+							{!active && (
+								<>
+									<ConnectWalletButton>Connect Wallet</ConnectWalletButton>
+									<HomeDropdown
+										onConnectWallet={openWallet}
+										onMint={openMint}
+										onProfile={openProfile}
+										isWalletConnected={active}
+									/>
+								</>
 							)}
 							{account && !isSearchActive && (
 								<>
@@ -490,12 +467,12 @@ const ZNS: React.FC<ZNSProps> = ({ domain, version, isNftView: nftView }) => {
 										iconUri={userIcon}
 									/>
 
-									{/* TODO: Change the triple dot button to a component */}
-									<div className={styles.Dots} onClick={openWallet}>
-										<div></div>
-										<div></div>
-										<div></div>
-									</div>
+									<HomeDropdown
+										onConnectWallet={openWallet}
+										onMint={openMint}
+										onProfile={openProfile}
+										isWalletConnected={active}
+									/>
 								</>
 							)}
 						</>
