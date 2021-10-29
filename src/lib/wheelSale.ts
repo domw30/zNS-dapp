@@ -7,7 +7,7 @@ const whitelistUriKovan =
 	'https://ipfs.io/ipfs/QmQUDvsZmBAi1Dw1Eo1iS9WmpvMvEC9vJ71MdEk9WsfSXM';
 
 const whitelistUriMainnet =
-	'https://ipfs.io/ipfs/QmUfqAdwAdZ5mar1VHjmn8cXxPJ9hcoXophP2GF7nY5v8S';
+	'https://zns-wheels.s3.us-east-2.amazonaws.com/wheels-launch-2-merkleTree.json';
 
 export interface WheelsWhitelistClaim {
 	index: number;
@@ -34,6 +34,7 @@ export const getWhitelist = async (
 	const body = await res.json();
 
 	cachedWhitelist = body as WheelsWhitelistDto;
+	console.log(cachedWhitelist);
 
 	return cachedWhitelist;
 };
