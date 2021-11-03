@@ -1,5 +1,5 @@
 //- React Imports
-import React, { useState, useEffect, useRef, createRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Spring, animated } from 'react-spring';
 
 //- Web3 Imports
@@ -11,10 +11,10 @@ import { BigNumber, ethers } from 'ethers';
 import {
 	ArrowLink,
 	FutureButton,
-	IconButton,
 	Member,
 	NFTMedia,
 	Overlay,
+	StatsWidget,
 	Tooltip,
 } from 'components';
 import { BidButton, MakeABid } from 'containers';
@@ -28,10 +28,9 @@ import { chainIdToNetworkType, getEtherscanUri } from 'lib/network';
 import { useZnsContracts } from 'lib/contracts';
 import { getDomainId } from 'lib/utils';
 import { useZnsDomain } from 'lib/hooks/useZnsDomain';
-import { useDomainsTransfers } from 'lib/hooks/zNSDomainHooks';
-import { Attribute, transfersData } from 'lib/types';
+import { Attribute } from 'lib/types';
 import { useZnsSdk } from 'lib/providers/ZnsSdkProvider';
-import { DomainBidEvent, DomainEvent } from '@zero-tech/zns-sdk';
+import { DomainBidEvent, DomainEvent, DomainMetrics } from '@zero-tech/zns-sdk';
 
 //- Style Imports
 import styles from './NFTView.module.scss';
@@ -40,7 +39,7 @@ import styles from './NFTView.module.scss';
 import background from './assets/bg.jpeg';
 import copyIcon from './assets/copy-icon.svg';
 import downloadIcon from './assets/download.svg';
-import shareIcon from './assets/share.svg';
+import useMatchMedia from 'lib/hooks/useMatchMedia';
 const moment = require('moment');
 
 type NFTViewProps = {
@@ -65,6 +64,10 @@ const NFTView: React.FC<NFTViewProps> = ({ domain, onTransfer }) => {
 	const { addNotification } = useNotification();
 	const { wildPriceUsd } = useCurrencyProvider();
 
+	const isMobile = useMatchMedia('phone');
+	const isTabletPortrait = useMatchMedia('(max-width: 768px)');
+	const isMobilePortrait = useMatchMedia('(max-width: 428px)');
+
 	//- Page State
 	const [isOwnedByYou, setIsOwnedByYou] = useState(false); // Is the current domain owned by you?
 	const [isBidOverlayOpen, setIsBidOverlayOpen] = useState(false);
@@ -74,6 +77,9 @@ const NFTView: React.FC<NFTViewProps> = ({ domain, onTransfer }) => {
 	const [backgroundBlob, setBackgroundBlob] = useState<string | undefined>(
 		blobCache.current,
 	);
+	const [tradeData, setTradeData] = useState<DomainMetrics | undefined>();
+	const [bids, setBids] = useState<DomainBidEvent[] | undefined>();
+	const [statsLoaded, setStatsLoaded] = useState(false);
 	const [isShowMoreAtrributes, setIsShowMoreAttributes] =
 		useState<boolean>(false);
 	const [containerHeight, setContainerHeight] = useState(0);
@@ -168,7 +174,7 @@ const NFTView: React.FC<NFTViewProps> = ({ domain, onTransfer }) => {
 						});
 					})
 					.catch((err) => {
-						console.log(err);
+						console.error(err);
 					});
 			} catch (e) {
 				console.error(e);
@@ -197,6 +203,7 @@ const NFTView: React.FC<NFTViewProps> = ({ domain, onTransfer }) => {
 				const events = await sdk.instance?.getDomainEvents(znsDomain.domain.id);
 
 				const bids = events.filter((e) => e.type === 2) as DomainBidEvent[];
+				setBids(bids);
 				const highest = bids.sort((a, b) => {
 					return (
 						Number(ethers.utils.formatEther(b.amount)) -
@@ -210,6 +217,13 @@ const NFTView: React.FC<NFTViewProps> = ({ domain, onTransfer }) => {
 			} catch (e) {
 				console.error('Failed to retrieve bid data');
 			}
+		}
+	};
+	const getTradeData = async () => {
+		if (znsDomain.domain) {
+			const data = await sdk.instance.getDomainMetrics([znsDomain.domain.id]);
+			setTradeData(data[znsDomain.domain.id]);
+			setStatsLoaded(true);
 		}
 	};
 
@@ -265,21 +279,111 @@ const NFTView: React.FC<NFTViewProps> = ({ domain, onTransfer }) => {
 
 	useEffect(() => {
 		if (!isMounted.current) return;
-		if (
-			znsDomain.domain &&
-			znsDomain.domain.metadata &&
-			!znsDomain.domain.image
-		) {
+		if (znsDomain.domain) {
 			if (!isMounted.current) return;
 
 			setIsOwnedByYou(
 				znsDomain.domain.owner.id.toLowerCase() === account?.toLowerCase(),
 			);
 			getHistory();
+			setStatsLoaded(false);
+			getTradeData();
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [znsDomain.domain]);
+
+	const nftStats = () => {
+		let width = '24.2%';
+		if (isMobilePortrait) {
+			width = '100%';
+		} else if (isTabletPortrait) {
+			width = '32%';
+		}
+		const data = [
+			{
+				fieldName: 'Top Bid',
+				title: `${
+					tradeData?.highestBid
+						? Number(
+								ethers.utils.formatEther(tradeData?.highestBid),
+						  ).toLocaleString()
+						: 0
+				} WILD`,
+				subTitle: `$${
+					tradeData?.highestBid
+						? toFiat(
+								Number(ethers.utils.formatEther(tradeData?.highestBid)) *
+									wildPriceUsd,
+						  )
+						: 0
+				}`,
+			},
+			{
+				fieldName: 'Bids',
+				title: bids?.length ? bids.length.toLocaleString() : '0',
+				isHidden: isMobile || isTabletPortrait || isMobilePortrait,
+			},
+			{
+				fieldName: 'Last Sale',
+				title: `${
+					tradeData?.lastSale
+						? Number(
+								ethers.utils.formatEther(tradeData?.lastSale),
+						  ).toLocaleString()
+						: 0
+				} WILD`,
+				subTitle: `$${
+					tradeData?.lastSale
+						? toFiat(
+								Number(ethers.utils.formatEther(tradeData?.lastSale)) *
+									wildPriceUsd,
+						  )
+						: 0
+				}`,
+			},
+			{
+				fieldName: 'Volume',
+				title: (tradeData?.volume as any)?.all
+					? `${Number(
+							ethers.utils.formatEther((tradeData?.volume as any)?.all),
+					  ).toLocaleString()} WILD`
+					: '',
+				subTitle: `$${
+					(tradeData?.volume as any)?.all
+						? toFiat(
+								Number(
+									ethers.utils.formatEther((tradeData?.volume as any)?.all),
+								) * wildPriceUsd,
+						  )
+						: 0
+				}`,
+			},
+		];
+
+		return (
+			<>
+				<div className={styles.Stats}>
+					{data.map((item) => (
+						<>
+							{!item.isHidden ? (
+								<StatsWidget
+									title={item.title}
+									fieldName={item.fieldName}
+									subTitle={item.subTitle}
+									isLoading={!statsLoaded || !allItems}
+									className="previewView"
+									style={{
+										width: width,
+									}}
+								></StatsWidget>
+							) : null}
+						</>
+					))}
+				</div>
+			</>
+		);
+	};
 
 	const overlays = () => (
 		<>
@@ -648,6 +752,7 @@ const NFTView: React.FC<NFTViewProps> = ({ domain, onTransfer }) => {
 					)}
 				</div>
 			</div>
+			{nftStats()}
 
 			{attributes()}
 			<div

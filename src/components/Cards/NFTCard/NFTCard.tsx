@@ -1,5 +1,5 @@
 //- React Imports
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 //- Style Imports
 import classNames from 'classnames/bind';
@@ -13,6 +13,7 @@ export interface NFTCardProps {
 	children?: React.ReactNode;
 	className?: string;
 	domain: string;
+	ignoreAspectRatio?: boolean;
 	imageUri?: string;
 	name?: string;
 	nftMinterId: string;
@@ -31,6 +32,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
 	children,
 	className,
 	domain,
+	ignoreAspectRatio,
 	imageUri,
 	name,
 	nftMinterId,
@@ -44,11 +46,12 @@ const NFTCard: React.FC<NFTCardProps> = ({
 	// Some hardcoded values for aspect ratios
 	// This will need to be extended
 	const isRootDomain = domain.split('.').length <= 2;
-	const isSquare = domain.includes('.kicks');
-	const isLandscape = domain.includes('.wheels') || domain.includes('.concept');
-	const isPortrait = domain.includes('.WoW');
+	const isSquare = domain.includes('.kicks') && !isRootDomain;
+	const isLandscape =
+		domain.includes('.wheels') || domain.includes('.concept') || isRootDomain;
+	const isPortrait = domain.includes('.WoW') && !isRootDomain;
 	const hasAspectRatio =
-		!isRootDomain && (isSquare || isLandscape || isPortrait);
+		!ignoreAspectRatio && (isSquare || isLandscape || isPortrait);
 
 	// If the domain is super long, truncate it
 	let domainText;
@@ -72,7 +75,7 @@ const NFTCard: React.FC<NFTCardProps> = ({
 				fit={!hasAspectRatio ? 'cover' : undefined}
 			/>
 		);
-	}, [imageUri, name]);
+	}, [imageUri, name, hasAspectRatio]);
 
 	return (
 		<div
@@ -80,9 +83,9 @@ const NFTCard: React.FC<NFTCardProps> = ({
 			className={cx(className, 'border-rounded', {
 				NFTCard: true,
 				HasAspectRatio: hasAspectRatio,
-				'Ratio1-1': isSquare,
-				'Ratio16-9': isLandscape,
-				'Ratio4-5': isPortrait,
+				'Ratio1-1': hasAspectRatio && isSquare,
+				'Ratio16-9': hasAspectRatio && isLandscape,
+				'Ratio4-5': hasAspectRatio && isPortrait,
 			})}
 			onClick={onClick}
 		>
